@@ -20,19 +20,21 @@ class FourLevelFeedbackQueue:
     def __contains__(self, item):
         return self._priority_map.__contains__(item)
 
-    def add_item(self, p_key, minutes, priority_level):
+    def add_item(self, p_key, name, minutes, priority_level):
         self._priority_map[p_key] = priority_level
-        self._queue_list[priority_level].add_record(p_key, minutes)
+        self._queue_list[priority_level].add_record(p_key, name, minutes)
 
     def schedule_next(self):
+        patient_data = None
+
         if not self._critical.is_empty():
-            self._critical.start_next()
+            patient_data = self._critical.start_next()
         elif not self._high.is_empty():
-            self._high.start_next()
+            patient_data = self._high.start_next()
         elif not self._medium.is_empty():
-            self._medium.start_next()
+            patient_data = self._medium.start_next()
         elif not self._low.is_empty():
-            self._low.start_next()
+            patient_data = self._low.start_next()
 
         for key in self._high.age(self._critical):
             self._priority_map[key] = 0
@@ -40,6 +42,8 @@ class FourLevelFeedbackQueue:
             self._priority_map[key] = 1
         for key in self._low.age(self._medium):
             self._priority_map[key] = 2
+
+        return patient_data
 
     def finish_op(self, p_key):
         priority_level = self._priority_map[p_key]
@@ -79,8 +83,8 @@ class FeedbackQueue:
         self._priority = priority
         self._head = 0
 
-    def add_record(self, p_key, minutes):
-        new_op = _Node(p_key, minutes, self._priority)
+    def add_record(self, p_key, name, minutes):
+        new_op = _Node(p_key, name, minutes, self._priority)
         self._deque.add([new_op, None])
         self._total_time += minutes
 
@@ -105,6 +109,8 @@ class FeedbackQueue:
         next_op[1] = RepeatingThread(get_trigger(), 2, self._tick, self._head)
         next_op[1].start()
         self._head += 1
+
+        return tuple([next_op[0].get_key(), next_op[0].get_name()])
 
     def terminate(self, p_key):
         index = self._find_key(p_key)
@@ -192,14 +198,18 @@ class FeedbackQueue:
 
 
 class _Node:
-    def __init__(self, p_key, minutes, age_time):
+    def __init__(self, p_key, name, minutes, age_time):
         self._key = p_key
+        self._name = name
         self._op_time = minutes
         self._age = 0
         self._age_inc = age_time
 
     def get_key(self):
         return self._key
+
+    def get_name(self):
+        return self._name
 
     def get_operation_time(self):
         return self._op_time
