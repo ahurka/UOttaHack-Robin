@@ -3,8 +3,8 @@ class DismissalGenerator:
         raise NotImplementedError
 
     def get_dismissal_string(self):
-        return "Due to your long projected waiting time and the non-critical" \
-               " nature of your diagnosis, we recommend resting and recovering" \
+        return "Due to your long projected waiting time and the non-critical\n" \
+               " nature of your diagnosis, we recommend resting and recovering\n" \
                " at home. Thank you for coming to Walk-In Clinic #52578."
 
 

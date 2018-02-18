@@ -24,17 +24,19 @@ class FourLevelFeedbackQueue:
         self._priority_map[p_key] = priority_level
         self._queue_list[priority_level].add_record(p_key, name, minutes)
 
-    def schedule_next(self):
-        patient_data = None
+    def cancel(self, p_key):
+        priority_level = self._priority_map[p_key]
+        self._queue_list[priority_level].remove(p_key)
 
-        if not self._critical.is_empty():
-            patient_data = self._critical.start_next()
-        elif not self._high.is_empty():
-            patient_data = self._high.start_next()
-        elif not self._medium.is_empty():
-            patient_data = self._medium.start_next()
-        elif not self._low.is_empty():
-            patient_data = self._low.start_next()
+    def schedule_next(self):
+        if self._critical.size() > len(self._critical.active_ops()):
+            self._critical.start_next()
+        elif self._high.size() > len(self._high.active_ops()):
+            self._high.start_next()
+        elif self._medium.size() > len(self._medium.active_ops()):
+            self._medium.start_next()
+        elif self._low.size() > len(self._low.active_ops()):
+            self._low.start_next()
 
         for key in self._high.age(self._critical):
             self._priority_map[key] = 0
@@ -42,8 +44,6 @@ class FourLevelFeedbackQueue:
             self._priority_map[key] = 1
         for key in self._low.age(self._medium):
             self._priority_map[key] = 2
-
-        return patient_data
 
     def finish_op(self, p_key):
         priority_level = self._priority_map[p_key]
@@ -88,6 +88,14 @@ class FeedbackQueue:
         self._deque.add([new_op, None])
         self._total_time += minutes
 
+    def add_node(self, node):
+        self._deque.add([node, None])
+        self._total_time += node.get_operation_time()
+
+    def remove(self, p_key):
+        index = self._find_key(p_key)
+        self._deque.force_remove(index)
+
     def _find_key(self, p_key):
         ind = 0
         for item in self._deque:
@@ -110,23 +118,25 @@ class FeedbackQueue:
         next_op[1].start()
         self._head += 1
 
-        return tuple([next_op[0].get_key(), next_op[0].get_name()])
-
     def terminate(self, p_key):
         index = self._find_key(p_key)
 
         self._deque[index][1].stop()
-        next_op = self._deque.remove()
+        next_op = self._deque.force_remove(index)
         self._total_time -= next_op[0].get_operation_time()
 
         for i in range(self._head):
-            if self._deque[i][0].is_set():
+            if self._deque[i][1] is not None and not self._deque[i][1].is_set():
                 self._deque.remove()
+                self._head -= 1
             else:
                 break
 
     def is_empty(self):
         return self._deque.is_empty()
+
+    def size(self):
+        return self._deque.size()
 
     def get_all_delay_options(self, options):
         min_ind = 0
@@ -152,6 +162,7 @@ class FeedbackQueue:
         min_ind = options.index(min(options))
         for i in range(index):
             if self._deque[i][1] is None:
+                options[min_ind] += self._deque[i][0].get_operation_time()
 
                 min_ind = options.index(min(options))
 
@@ -192,7 +203,7 @@ class FeedbackQueue:
             changed[i] = self._deque[temp][0].get_key()
 
             self._total_time -= node.get_operation_time()
-            next_level.add_record(node.get_key(), node.get_operation_time())
+            next_level.add_node(node)
             self._deque.force_remove(temp)
         return changed
 

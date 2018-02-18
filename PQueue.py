@@ -46,6 +46,7 @@ class ArrayDeque:
             return ret
 
     def force_remove(self, index):
+        ret = self[index]
         mid = self._in_buf // 2
         if index >= mid:
             for i in range(index + 1, self._in_buf):
@@ -56,6 +57,7 @@ class ArrayDeque:
             for i in range(index):
                 self._set_item(self[i], i + 1)
             self.remove()
+        return ret
 
     def size(self):
         return self._in_buf
