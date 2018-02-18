@@ -6,24 +6,92 @@
   <title>Document</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
   <link rel="stylesheet" href="css/style.css">
 </head>
 
 <body>
 
+
   <div class="jumbotron vertical-center">
 
+  
+     <!-- Modal -->
+  <div class="modal fade" id="myModal" role="dialog">
+    <div class="modal-dialog">
+    
+      <!-- Modal content-->
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h4 class="modal-title">Modal Header</h4>
+        </div>
+        <div class="modal-body">
+          <p>Some text in the modal.</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+      
+    </div>
+  </div>
+
+
   <body background="1start.jpg">
-    <div id="start" class="container text-center col-xs-6" onclick="location.href = 'question.html';">
-        <button type="button" class="btn btn-info btn-lg btn-block typeform-share button" href="https://joshgarcia.typeform.com/to/sINTqV" data-mode="popup" >
-          Start
+    <div id="start" class="container text-center col-xs-6">
+        <button id="Silvia" type="button" class="btn btn-info btn-lg btn-block" data-toggle="modal" data-target="#myModal" >
+        Silvia Judy
         </button>
-        <script> (function() { var qs,js,q,s,d=document, gi=d.getElementById, ce=d.createElement, gt=d.getElementsByTagName, id="typef_orm_share", b="https://embed.typeform.com/"; if(!gi.call(d,id)){ js=ce.call(d,"script"); js.id=id; js.src=b+"embed.js"; q=gt.call(d,"script")[0]; q.parentNode.insertBefore(js,q) } })() </script>
+
+        <button type="button" class="btn btn-info btn-lg btn-block" >
+        Eskarne Alkmene
+        </button>
+
+        <button type="button" class="btn btn-info btn-lg btn-block" >
+        Ivonne Toribio
+        </button>
+
+        <button type="button" class="btn btn-info btn-lg btn-block" >
+          Ramesh Carbry
+        </button>
     </div>
 
 
 
+</div>
+
+
 
   </div>
+
+  <script>
+// Get the modal
+var modal = document.getElementById('myModal');
+
+// Get the button that opens the modal
+var btn = document.getElementById("Silvia");
+
+// Get the <span> element that closes the modal
+var span = document.getElementsByClassName("close")[0];
+
+// When the user clicks the button, open the modal 
+btn.onclick = function() {
+    modal.style.display = "block";
+}
+
+// When the user clicks on <span> (x), close the modal
+span.onclick = function() {
+    modal.style.display = "none";
+}
+
+// When the user clicks anywhere outside of the modal, close it
+window.onclick = function(event) {
+    if (event.target == modal) {
+        modal.style.display = "none";
+    }
+}
+</script>
 
 </body>
