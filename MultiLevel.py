@@ -35,14 +35,10 @@ class FourLevelFeedbackQueue:
             self._low.start_next()
 
         for key in self._high.age(self._critical):
-            print("Gab {0}".format(key))
             self._priority_map[key] = 0
-            print("{0} -> {1}".format(key, self._priority_map[key]))
         for key in self._medium.age(self._high):
-            print(key)
             self._priority_map[key] = 1
         for key in self._low.age(self._medium):
-            print(key)
             self._priority_map[key] = 2
 
     def finish_op(self, p_key):
@@ -52,21 +48,16 @@ class FourLevelFeedbackQueue:
 
     def get_expected_time(self, p_key):
         priority_level = self._priority_map[p_key]
-        print("HAG")
-        print(priority_level)
+
         options = self.get_active_ops()
         if options == []:
             options.append(0)
         else:
             options = [self._queue_list[self._priority_map[key]].get_length(key) for key in options]
+
         for i in range(priority_level):
-            print(options)
             options = self._queue_list[i].get_all_delay_options(options)
-        # print(total)
-        print(options)
-        # print("HGH {0}".format(self._queue_list[priority_level].get_delay(p_key, options)))
-        # total += self._queue_list[priority_level].get_delay(p_key, active_ops)
-        # print(total)
+
         return self._queue_list[priority_level].get_delay(p_key, options)
 
     def get_active_ops(self):
@@ -89,7 +80,6 @@ class FeedbackQueue:
         self._head = 0
 
     def add_record(self, p_key, minutes):
-        print("Adding {0}".format(p_key))
         new_op = _Node(p_key, minutes, self._priority)
         self._deque.add([new_op, None])
         self._total_time += minutes
@@ -137,12 +127,11 @@ class FeedbackQueue:
         for i in range(self._deque.size()):
             if self._deque[i][1] is None:
                 options[min_ind] += self._deque[i][0].get_operation_time()
-                print("Updated options: {0}".format(options))
 
                 min = options[0]
                 min_ind = 0
                 for m in range(1, len(options)):
-                    print("Try out {0}".format(options[m]))
+
                     if options[m] < min:
                         min = options[m]
                         min_ind = m
@@ -150,7 +139,6 @@ class FeedbackQueue:
 
     def get_delay(self, p_key, options):
         index = self._find_key(p_key)
-        print("{0} found at {1}".format(p_key, index))
 
         if self._deque[index][1] is not None:
             return 0
@@ -158,8 +146,6 @@ class FeedbackQueue:
         min_ind = options.index(min(options))
         for i in range(index):
             if self._deque[i][1] is None:
-                options[min_ind] += self._deque[i][0].get_operation_time()
-                print("Updated options: {0}".format(options))
 
                 min_ind = options.index(min(options))
 
@@ -191,23 +177,17 @@ class FeedbackQueue:
         changed = []
         max = self._deque.size()
         for i in range(max):
-            print(self._deque[i])
             if self._deque[i][1] is None and self._deque[i][0].age():
-                print("Node {0} is aging!".format(i))
                 changed.append(i)
 
         for i in range(len(changed)):
-            print("JJJJJ {0}".format(changed))
             temp = changed[i] - i
-            print(temp)
             node = self._deque[temp][0]
             changed[i] = self._deque[temp][0].get_key()
-            print(temp)
 
             self._total_time -= node.get_operation_time()
             next_level.add_record(node.get_key(), node.get_operation_time())
             self._deque.force_remove(temp)
-        print(changed)
         return changed
 
 
@@ -229,5 +209,4 @@ class _Node:
 
     def age(self):
         self._age = self._age + 1
-        print(self._age)
         return self._age % self._age_inc == 0
